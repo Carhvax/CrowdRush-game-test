@@ -4,13 +4,16 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class NightWalker : MapAgent {
     [SerializeField] private NavMeshAgent _agent;
+    
+    private MapAgent _target;
 
     private void OnValidate() {
         _agent = GetComponent<NavMeshAgent>();
     }
 
-    private void Start() {
-        _agent.SetDestination(Vector3.zero);
+    public void SetPrimaryTarget(MapAgent target) {
+        _target = target;
+
     }
 
 }

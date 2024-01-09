@@ -24,19 +24,19 @@ public class StateChangeHandler : IDisposable {
         _observable.StateEnter += OnStateEntered;
     }
 
-    public StateChangeHandler AddMap<TState>(Action<IStateMap> onMap) where TState : IScreenState {
+    public StateChangeHandler AddMap<TState>(Action<IStateMap> onMap) where TState : IState {
         var stateMap = new StateMap<TState>(this);
         _maps.Add(() => stateMap.Complete());
         onMap?.Invoke(stateMap);
         return this;
     }
     
-    private void OnStateEntered(IScreenState state) {
+    private void OnStateEntered(IState state) {
         if (_observers.TryGetValue(state.GetType(), out var observers))
             observers.Each(o => o.EnterState(state as ScreenState));
     }
     
-    private void OnStateExited(IScreenState state) {
+    private void OnStateExited(IState state) {
         if (_observers.TryGetValue(state.GetType(), out var observers))
             observers.Each(o => o.ExitState(state as ScreenState));
     }
@@ -52,7 +52,7 @@ public class StateChangeHandler : IDisposable {
         _observable.StateEnter -= OnStateEntered;
     }
 
-    private class StateMap<T> : IStateMap where T : IScreenState {
+    private class StateMap<T> : IStateMap where T : IState {
         
         private readonly HashSet<IStateObserver> _observers = new();
         private readonly StateChangeHandler _handler;

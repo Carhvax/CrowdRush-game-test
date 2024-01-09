@@ -19,7 +19,7 @@ public interface IMenuCommand {
     void Execute();
 }
 
-public abstract class ScreenState : ScreenLayout, IScreenState {
+public abstract class ScreenState : ScreenLayout, IState {
 
     private void OnValidate() {
         name = $"{GetType().Name}";
@@ -43,12 +43,12 @@ public abstract class ScreenState : ScreenLayout, IScreenState {
         return result;
     }
     
-    public void Show() {
+    public void Enter() {
         gameObject.SetActive(true);
         ShowLayout();
     }
     
-    public void Hide() {
+    public void Exit() {
         HideLayout();
         gameObject.SetActive(false);
     }

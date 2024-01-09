@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class MobSpawner : SpawnPool<MapAgent> {
+public class MobSpawner : SpawnPool<NightWalker> {
     
     [SerializeField] private float _spawnRadius = 5f;
     [SerializeField] private int _agentsLimit = 50;
@@ -10,6 +10,7 @@ public class MobSpawner : SpawnPool<MapAgent> {
     
     [Space]
     [SerializeField] private Transform[] _points;
+    [SerializeField] private CommandConsole _console;
     
     private int _killed;
     private float _timer;
@@ -36,6 +37,7 @@ public class MobSpawner : SpawnPool<MapAgent> {
         
         var agent = GetInstance();
         agent.transform.position = position;
+        agent.SetPrimaryTarget(_console);
         agent.Die += OnAgentWasKilled;
         
         agent.gameObject.SetActive(true);
@@ -46,7 +48,7 @@ public class MobSpawner : SpawnPool<MapAgent> {
         
         _killed++;
         
-        Return(agent);
+        Return(agent as NightWalker);
         
         AgentDied?.Invoke(_killed);
     }

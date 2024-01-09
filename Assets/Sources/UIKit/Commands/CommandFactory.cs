@@ -8,11 +8,11 @@ public class CommandFactory {
         _provider = provider;
     }
     
-    public IMenuCommand CreateRoute<TButton, TState>(params Action[] actions) where TButton : class, ILayoutButton where TState : class, IScreenState {
+    public IMenuCommand CreateRoute<TButton, TState>(params Action[] actions) where TButton : class, ILayoutButton where TState : class, IState {
         return CreateTrigger<TButton>(() => _provider.ChangeState<TState>());
     }
     
-    public IMenuCommand CreateRoute<TState>(params Action[] actions) where TState : class, IScreenState {
+    public IMenuCommand CreateRoute<TState>(params Action[] actions) where TState : class, IState {
         return CreateCommand(() => {
             actions.Each(a => a?.Invoke());
             _provider.ChangeState<TState>();
@@ -38,7 +38,7 @@ public class CommandFactory {
 
 public static class CommandsExtensions {
 
-    public static void AddRouteMap<TButton, TState>(this CommandFactory factory, IStateMap map) where TButton : class, ILayoutButton where TState : class, IScreenState {
+    public static void AddRouteMap<TButton, TState>(this CommandFactory factory, IStateMap map) where TButton : class, ILayoutButton where TState : class, IState {
         map.AddObserver(factory.CreateRoute<TButton, TState>(null) as IStateObserver);
     }
     
