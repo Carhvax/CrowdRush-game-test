@@ -13,7 +13,6 @@ public class NightWalker : MapAgent {
 
     public void SetPrimaryTarget(MapAgent target) {
         _target = target;
-
     }
-
 }
+

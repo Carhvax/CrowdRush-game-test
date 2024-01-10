@@ -5,26 +5,26 @@ using Random = UnityEngine.Random;
 public class MobSpawner : SpawnPool<NightWalker> {
     
     [SerializeField] private float _spawnRadius = 5f;
-    [SerializeField] private int _agentsLimit = 50;
-    [SerializeField] private int _agentsCount = 50;
+    [SerializeField] private int _agentsAtOnce = 50;
+    [SerializeField] private int _agentsTotal = 50;
     
     [Space]
     [SerializeField] private Transform[] _points;
-    [SerializeField] private CommandConsole _console;
     
     private int _killed;
     private float _timer;
 
-    private int AgentLimit => Mathf.Min(_agentsLimit, _agentsCount - _killed);
+    private int AgentsLimit => Mathf.Min(_agentsAtOnce, _agentsTotal - _killed);
 
     public event Action<int> AgentDied;
+    public event Action<MapAgent> AgentSpawned;
 
     private void Awake() {
         Init();
     }
 
     private void Update() {
-        if (ActiveInstances >= AgentLimit || (_timer -= Time.deltaTime) > 0) return;
+        if (ActiveInstances >= AgentsLimit || (_timer -= Time.deltaTime) > 0) return;
         
         SpawnAgent(_points.GetRandom());
 
@@ -35,12 +35,10 @@ public class MobSpawner : SpawnPool<NightWalker> {
         var point = Random.insideUnitCircle * _spawnRadius;
         var position = spawnPoint.position + new Vector3(point.x, 0, point.y);
         
-        var agent = GetInstance();
-        agent.transform.position = position;
-        agent.SetPrimaryTarget(_console);
+        var agent = GetFromPool(position);
         agent.Die += OnAgentWasKilled;
         
-        agent.gameObject.SetActive(true);
+        AgentSpawned?.Invoke(agent);
     }
     
     private void OnAgentWasKilled(MapAgent agent) {

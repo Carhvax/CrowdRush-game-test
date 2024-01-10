@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
     
     [SerializeField] private T _prefab;
-    [SerializeField] private int _count = 50;
+    [SerializeField] private int _preloadCount = 50;
     [SerializeField] private Transform _content;
 
     private readonly HashSet<T> _active = new();
@@ -15,7 +15,7 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
     
     public void Init() {
         Enumerable
-            .Repeat(0, _count)
+            .Repeat(0, _preloadCount)
             .Each(e => AddInstance());
     }
 
@@ -29,13 +29,14 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
         Destroy(instance);
     }
     
-    protected T GetInstance() {
+    protected T GetFromPool(Vector3 position) {
         if(_passive.Count == 0) AddInstance();
 
         var instance = _passive.Dequeue();
 
         _active.Add(instance);
         
+        instance.transform.position = position;
         instance.gameObject.SetActive(true);
         
         return instance;
