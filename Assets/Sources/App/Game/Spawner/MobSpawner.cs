@@ -23,7 +23,7 @@ public class MobSpawner : SpawnPool<NightWalker> {
         Init();
     }
 
-    private void Update() {
+    public void Tick() {
         if (ActiveInstances >= AgentsLimit || (_timer -= Time.deltaTime) > 0) return;
         
         SpawnAgent(_points.GetRandom());

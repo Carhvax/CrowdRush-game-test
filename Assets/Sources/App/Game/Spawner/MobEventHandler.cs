@@ -13,32 +13,31 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
     private readonly Dictionary<MapAgent, MobData> _instances = new();
     private BehaviourTree _tree;
 
-    private void Awake() {
+
+    public void InitHandler() {
         _tree = new BehaviourTree(this);
+        _spawners.Each(s => s.Init());
     }
 
-    private void OnEnable() {
-        _spawners.Each(s => s.AgentSpawned += OnAgentWasSpawn);
-    }
+    public void DisposeHandler() => _spawners.Each(s => s.DestroyPool());
     
+    private void OnEnable() => _spawners.Each(s => s.AgentSpawned += OnAgentWasSpawn);
+
     private void OnAgentWasSpawn(MapAgent agent) {
         if (agent is NightWalker walker) {
             walker.SetAgentHandler(this);
             walker.UpdateHealth(1);
             
-            _instances.Add(walker, new MobData(health: 10, sight: 5, speed:1, target: _targets.OfType<CommandConsole>().FirstOrDefault()));
+            _instances.Add(walker, new MobData(health: 10, sight: 5,  damage: 5, speed:1, target: _targets.OfType<CommandConsole>().FirstOrDefault()));
         }
     }
 
-    private void FixedUpdate() {
-        _instances.Each(i => {
-            _tree.Execute(i.Key, i.Value);
-        });
+    public void Tick() {
+        _spawners.Each(s => s.Tick());
+        _instances.Each(i => _tree.Execute(i.Key, i.Value));
     }
 
-    private void OnDisable() {
-        _spawners.Each(s => s.AgentSpawned -= OnAgentWasSpawn);
-    }
+    private void OnDisable() => _spawners.Each(s => s.AgentSpawned -= OnAgentWasSpawn);
 
     public MapAgent NearestTarget(MapAgent agent) {
         var data = _instances[agent];

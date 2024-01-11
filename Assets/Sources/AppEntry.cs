@@ -17,17 +17,19 @@ public class AppEntry : MonoBehaviour {
             })
             .AddMap<SettingsScreenState>(commandFactory.AddRouteBack<ReturnBackButton>)
             .AddMap<LoadingScreenState>((map) => {
-                
+                presenterFactory.AddPresenter<LoadingPresenter>(map);
             })
             .AddMap<GameScreenState>((map) => {
                 commandFactory.AddRouteMap<ShowPauseButton, PauseScreenState>(map);
             })
             .AddMap<UnLoadingScreenState>((map) => {
-                
+                presenterFactory.AddPresenter<UnloadingPresenter>(map);
             })
             .AddMap<PauseScreenState>((map) => {
                 commandFactory.AddRouteMap<ReturnMenuButton, UnLoadingScreenState>(map);
                 commandFactory.AddRouteMap<RestartMenuButton, LoadingScreenState>(map);
+                
+                presenterFactory.AddPresenter<PausePresenter>(map);
             })
             .AddMap<CompleteScreenState>((map) => {
                 commandFactory.AddRouteMap<ReturnMenuButton, UnLoadingScreenState>(map);

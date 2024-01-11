@@ -6,6 +6,7 @@ using Zenject;
 public class UIInstaller : MonoInstaller {
 
     [SerializeField] private AppEntry _entryPoint;
+    [SerializeField] private GameObject _handlers;
     
     private Type[] _domainTypes;
     
@@ -26,6 +27,8 @@ public class UIInstaller : MonoInstaller {
     }
 
     private void BindStates() {
+        BindAsSingle<GameFlow>();
+        
         BindAsSingle<AppStates>();
         BindAsSingle<StateChangeHandler>();
         BindAsSingle<CommandFactory>();
@@ -42,6 +45,7 @@ public class UIInstaller : MonoInstaller {
     private void BindSources() {
         OnType<IAppModel>().Each(BindAsSingle);
         
+        BindInstanceAsSingle(_handlers.GetComponents<IAgentEventsHandler>().ToArray());
         BindInstanceAsSingle(FindObjectsOfType<ScreenState>(true));
         
         Container

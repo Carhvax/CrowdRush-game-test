@@ -28,9 +28,9 @@ namespace AI {
             });
         }
 
-        private Status SpawnTimer(MapAgent agent, MobData data) => (data.SpawnTimer -= Time.fixedDeltaTime) > 0? Status.Running: Status.Success;
+        private Status SpawnTimer(MapAgent agent, MobData data) => (data.SpawnTimer -= Time.deltaTime) > 0? Status.Running: Status.Success;
         
-        private Status WaitDeath(MapAgent agent, MobData data) => (data.DeathTimer -= Time.fixedDeltaTime) > 0? Status.Running: Status.Success;
+        private Status WaitDeath(MapAgent agent, MobData data) => (data.DeathTimer -= Time.deltaTime) > 0? Status.Running: Status.Success;
         
         private Status NoHealth(MapAgent agent, MobData data) => data.HealthAmount > 0 ? Status.Failure : Status.Success;
 
@@ -43,22 +43,20 @@ namespace AI {
                 return Status.Failure;
             }
 
-            agent.Move(direction.normalized * Time.fixedDeltaTime * data.MovementSpeed);
+            agent.Move(direction.normalized * Time.deltaTime * data.MovementSpeed);
             
             return Status.Running;
         }
         
-        private Status ContactTarget(MapAgent agent, MobData data) {
-            return (data.AimTimer -= Time.fixedDeltaTime) > 0 ? Status.Running : Status.Success;
-        }
-        
+        private Status ContactTarget(MapAgent agent, MobData data) => (data.AimTimer -= Time.deltaTime) > 0 ? Status.Running : Status.Success;
+
         private Status AttackTarget(MapAgent agent, MobData data) {
 
-            data.PrimaryTarget.ApplyDamage(5);
+            data.PrimaryTarget.ApplyDamage(data.Damage);
             
-            data.AimTimer = 1f;
+            data.AimTimer = data.AimTime;
             
-            agent.Attack();
+            agent.PlayAttack();
             
             return data.PrimaryTarget.IsActive? Status.Success: Status.Failure;
         }

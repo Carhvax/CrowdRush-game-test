@@ -12,10 +12,15 @@ public class MobData {
     public float MovementSpeed { get; private set; }
     public float AimTimer { get; set; } = .5f;
     public float DeathTimer { get; set; } = 1f;
+    public float AimTime { get; } = .5f;
+    public float DeathTime { get; } = 1f;
+    public float SpawnTime { get; } = 1f;
+    public int Damage { get; set; }
 
-    public MobData(int health, int sight, float speed,  MapAgent target) {
+    public MobData(int health, int sight, int damage, float speed,  MapAgent target) {
         MaxHealth = health;
         Health = health;
+        Damage = damage;
         SightRadius = sight;
         MovementSpeed = speed;
         PrimaryTarget = target;
@@ -25,9 +30,5 @@ public class MobData {
         Health = Mathf.Clamp(Health - Mathf.Abs(damage), 0, int.MaxValue);
 
         return Health == 0;
-    }
-
-    public void ChangeTarget() {
-        
     }
 }

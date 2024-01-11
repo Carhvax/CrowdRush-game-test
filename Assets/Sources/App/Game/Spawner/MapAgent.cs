@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.AI;
 
 public abstract class MapAgent : MonoBehaviour {
 
@@ -36,7 +35,7 @@ public abstract class MapAgent : MonoBehaviour {
         _handler.ApplyDamage(this, damage);
     }
 
-    public void Attack() => AttackAnimation();
+    public void PlayAttack() => AttackAnimation();
 
     public abstract void Move(Vector3 direction);
     

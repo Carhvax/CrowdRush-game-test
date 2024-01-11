@@ -336,6 +336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _entryPoint: {fileID: 1726577970}
+  _handlers: {fileID: 620899007}
 --- !u!1 &45449027
 GameObject:
   m_ObjectHideFlags: 0
@@ -2384,7 +2385,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &457887429
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3481,6 +3482,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _console: {fileID: 1910046214}
+  _health: 0
+  _armorPenalty: 0.5
 --- !u!1 &656059547
 GameObject:
   m_ObjectHideFlags: 0
@@ -10974,7 +10977,7 @@ GameObject:
   - component: {fileID: 2141966299}
   - component: {fileID: 2141966300}
   m_Layer: 0
-  m_Name: CameraHolder
+  m_Name: '[CameraHolder]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
