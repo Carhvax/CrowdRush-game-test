@@ -13,7 +13,7 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
 
     public int ActiveInstances => _active.Count;
     
-    public void Init() {
+    protected void Initialize() {
         Enumerable
             .Repeat(0, _preloadCount)
             .Each(e => AddInstance());

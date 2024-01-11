@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,14 +7,25 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
 
     [SerializeField] private PlayerAgent _player;
     [SerializeField] private LayerMask _sightMask;
-    
-    private MobData _data;
-    
-    private readonly Collider[] _sight = new Collider[32];
-    private MapAgent _target;
-    
 
-    public void InitHandler() => _player.SetAgentHandler(this);
+    [Space, Header("Player Data Setup")]
+    [SerializeField] private int _health = 50;
+    [SerializeField] private int _sightRadius = 5;
+    [SerializeField] private int _damage = 5;
+    [SerializeField] private int _speed = 5;
+
+    private readonly Collider[] _sight = new Collider[32];
+    private MobData _data;
+    private MapAgent _target;
+    private IStatsProvider _stats;
+
+    public void InitHandler(IStatsProvider stats) {
+        _stats = stats;
+        _data = new MobData(_health, _sightRadius,  _damage, _speed);
+        _player.SetAgentHandler(this);
+
+        UpdateHealth();
+    }
 
     public void DisposeHandler() {}
     
@@ -24,23 +36,34 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
         if (died) {
             mapAgent.KillAgent();
         }
+
+        UpdateHealth();
     }
+    
+    private void UpdateHealth() => _stats.PlayerHealth.Value = _data.HealthAmount;
     
     public MapAgent NearestTarget(MapAgent agent) => agent;
 
     public void Tick() {
         if(!_player.IsActive) return;
         
-        var direction = MoveAgent();
+        var direction = GetInput();
         
         _player.Move(direction * (Time.deltaTime * _data.MovementSpeed));
+
+        direction = _target != null? 
+            (_target.transform.position - _player.transform.position).normalized :
+            direction;
+        
+        _player.Rotate(direction);
         
         SelectTarget(direction, _data.SightRadius, _data.AimTime);
 
-        _player.ShootTarget(_data.Damage, _data.AimTime);
+        if(_target != null && _target.IsActive && _player.ShootTarget(_target.transform.position, _data.AimTime))
+            _target.ApplyDamage(_data.Damage);
     }
     
-    public Vector3 MoveAgent() {
+    public Vector3 GetInput() {
         var velocity = new Vector3(
             Input.GetAxis("Horizontal"),
             0,
@@ -49,26 +72,19 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
 
         return velocity;
     }
-    
-    public void SelectTarget(Vector3 direction, float sightRadius, float weaponReload) {
+
+    private void SelectTarget(Vector3 direction, float sightRadius, float weaponReload) {
         var position = _player.transform.position;
         
         if (TryGetTarget<NightWalker>(position, sightRadius, out var agent)) {
             if (_target != agent) {
                 _target = agent;
-                _player.ResetAim(weaponReload);   
+                _player.ResetAim(weaponReload);
             }
         }
         else {
             _target = null;
         }
-        
-        direction = _target != null? 
-            (_target.transform.position - position).normalized :
-            direction;
-        
-        if(direction.magnitude != 0)
-            transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
     }
 
     private bool TryGetTarget<TAgent>(Vector3 position, float sightRadius, out TAgent agent) where TAgent : MapAgent {

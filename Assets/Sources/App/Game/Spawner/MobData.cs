@@ -17,7 +17,7 @@ public class MobData {
     public float SpawnTime { get; } = 1f;
     public int Damage { get; set; }
 
-    public MobData(int health, int sight, int damage, float speed,  MapAgent target) {
+    public MobData(int health, int sight, int damage, float speed,  MapAgent target = null) {
         MaxHealth = health;
         Health = health;
         Damage = damage;

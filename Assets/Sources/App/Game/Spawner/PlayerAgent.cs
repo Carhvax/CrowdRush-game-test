@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -9,23 +7,18 @@ public class PlayerAgent : MapAgent {
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private Weapon _weapon;
     
-    [Space]
-    [SerializeField] private LayerMask _sightMask;
-    
-    private readonly Collider[] _sight = new Collider[32];
-    private MapAgent _target;
     private float _aimTimer;
 
-    public void ShootTarget(int weaponDamage, float weaponReload) {
-        if (_target == null || !_target.IsActive || (_aimTimer -= Time.deltaTime) > 0) return;
+    public bool ShootTarget(Vector3 target, float weaponReload) {
+        if ((_aimTimer -= Time.deltaTime) > 0) return false;
 
         ResetAim(weaponReload);
         
-        _weapon.Shoot(_target.transform.position + Vector3.up);
-
-        _target.ApplyDamage(weaponDamage);
+        _weapon.Shoot(target + Vector3.up);
         
         AttackAnimation();
+
+        return true;
     }
 
     public void ResetAim(float weaponReload) {
@@ -36,5 +29,10 @@ public class PlayerAgent : MapAgent {
         MoveAnimation(velocity.normalized);
         
         _agent.Move(velocity );
+    }
+    
+    public void Rotate(Vector3 direction) {
+        if(direction.magnitude != 0)
+            transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
     }
 }

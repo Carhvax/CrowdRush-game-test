@@ -21,6 +21,7 @@ public class AppEntry : MonoBehaviour {
             })
             .AddMap<GameScreenState>((map) => {
                 commandFactory.AddRouteMap<ShowPauseButton, PauseScreenState>(map);
+                presenterFactory.AddPresenter<StatsPresenter>(map);
             })
             .AddMap<UnLoadingScreenState>((map) => {
                 presenterFactory.AddPresenter<UnloadingPresenter>(map);

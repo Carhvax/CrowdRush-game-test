@@ -12,16 +12,29 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
     
     private readonly Dictionary<MapAgent, MobData> _instances = new();
     private BehaviourTree _tree;
+    private IStatsProvider _stats;
 
 
-    public void InitHandler() {
+    public void InitHandler(IStatsProvider stats) {
+        _stats = stats;
         _tree = new BehaviourTree(this);
         _spawners.Each(s => s.Init());
+        
+        OnAgentCountChanged();
     }
 
     public void DisposeHandler() => _spawners.Each(s => s.DestroyPool());
     
-    private void OnEnable() => _spawners.Each(s => s.AgentSpawned += OnAgentWasSpawn);
+    private void OnEnable() => _spawners.Each(s => {
+        s.AgentSpawned += OnAgentWasSpawn;
+        s.AgentDied += OnAgentCountChanged;
+    });
+    
+    private void OnAgentCountChanged() {
+        var mobs = _spawners.Sum(s => s.Remain);
+        
+        _stats.MobsCount.Value = mobs;
+    }
 
     private void OnAgentWasSpawn(MapAgent agent) {
         if (agent is NightWalker walker) {
@@ -37,7 +50,10 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
         _instances.Each(i => _tree.Execute(i.Key, i.Value));
     }
 
-    private void OnDisable() => _spawners.Each(s => s.AgentSpawned -= OnAgentWasSpawn);
+    private void OnDisable() => _spawners.Each(s => {
+        s.AgentSpawned -= OnAgentWasSpawn;
+        s.AgentDied -= OnAgentCountChanged;
+    });
 
     public MapAgent NearestTarget(MapAgent agent) {
         var data = _instances[agent];

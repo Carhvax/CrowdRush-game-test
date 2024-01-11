@@ -6,7 +6,20 @@ public class ConsoleEventHandler : MonoBehaviour, IAgentEventsHandler {
     [SerializeField] private int _health;
     [SerializeField] private float _armorPenalty = .5f;
     
-    public void InitHandler() => _console.SetAgentHandler(this);
+    private IStatsProvider _stats;
+    private int _startHealth;
+
+    private void Awake() {
+        _startHealth = _health;
+    }
+
+    public void InitHandler(IStatsProvider stats) {
+        _stats = stats;
+        _console.SetAgentHandler(this);
+        _health = _startHealth;
+
+        UpdateHealth();
+    }
 
     public void DisposeHandler() {}
 
@@ -16,8 +29,10 @@ public class ConsoleEventHandler : MonoBehaviour, IAgentEventsHandler {
         if (_health == 0) {
             mapAgent.KillAgent();
         }
+
+        UpdateHealth();
     }
-    
+    private void UpdateHealth() => _stats.ConsoleHealth.Value = _health / (float)_startHealth;
     public MapAgent NearestTarget(MapAgent agent) => null;
     
     public void Tick() {}
