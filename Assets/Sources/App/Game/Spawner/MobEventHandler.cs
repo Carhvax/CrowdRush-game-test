@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AI;
 using UnityEngine;
 
 public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
@@ -10,9 +11,10 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
     [SerializeField] private MapAgent[] _targets;
     
     private readonly Dictionary<MapAgent, MobData> _instances = new();
+    private BehaviourTree _tree;
 
     private void Awake() {
-
+        _tree = new BehaviourTree(this);
     }
 
     private void OnEnable() {
@@ -24,12 +26,14 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
             walker.SetAgentHandler(this);
             walker.UpdateHealth(1);
             
-            _instances.Add(walker, new MobData(health: 10, sight: 5, target: _targets.OfType<CommandConsole>().FirstOrDefault()));
+            _instances.Add(walker, new MobData(health: 10, sight: 5, speed:1, target: _targets.OfType<CommandConsole>().FirstOrDefault()));
         }
     }
 
     private void FixedUpdate() {
-
+        _instances.Each(i => {
+            _tree.Execute(i.Key, i.Value);
+        });
     }
 
     private void OnDisable() {
@@ -39,12 +43,14 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
     public MapAgent NearestTarget(MapAgent agent) {
         var data = _instances[agent];
 
-        return _targets
-            .Where(t => GetDistance(t) <= data.SightRadius)
+        var closestTarget = _targets
+            .Where(t => t.IsActive && GetDistance(t) <= data.SightRadius)
             .OrderBy(GetDistance)
             .FirstOrDefault();
-
-        float GetDistance(MapAgent target) => (target.transform.position - agent.transform.position).magnitude; 
+        
+        return closestTarget != null ? closestTarget : _targets.OfType<CommandConsole>().FirstOrDefault();
+        
+        float GetDistance(MapAgent target) => target.GetDirectionToContact(agent.transform.position).magnitude; 
     }
 
     public void ApplyDamage(MapAgent mapAgent, int damage) {
