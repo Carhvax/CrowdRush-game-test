@@ -23,7 +23,7 @@ public class ConsoleEventHandler : MonoBehaviour, IAgentEventsHandler {
 
     public void DisposeHandler() {}
 
-    public void ApplyDamage(MapAgent mapAgent, int damage) {
+    public bool ApplyDamage(MapAgent mapAgent, int damage) {
         _health -= (int)(damage * _armorPenalty);
         
         if (_health == 0) {
@@ -31,8 +31,12 @@ public class ConsoleEventHandler : MonoBehaviour, IAgentEventsHandler {
         }
 
         UpdateHealth();
+
+        return _health == 0;
     }
+    
     private void UpdateHealth() => _stats.ConsoleHealth.Value = _health / (float)_startHealth;
+    
     public MapAgent NearestTarget(MapAgent agent) => null;
     
     public void Tick() {}

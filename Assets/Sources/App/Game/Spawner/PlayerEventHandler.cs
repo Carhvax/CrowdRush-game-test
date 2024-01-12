@@ -18,18 +18,18 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
     private MobData _data;
     private MapAgent _target;
     private IStatsProvider _stats;
-
+    
     public void InitHandler(IStatsProvider stats) {
         _stats = stats;
         _data = new MobData(_health, _sightRadius,  _damage, _speed);
         _player.SetAgentHandler(this);
-
+        
         UpdateHealth();
     }
 
     public void DisposeHandler() {}
     
-    public void ApplyDamage(MapAgent mapAgent, int damage) {
+    public bool ApplyDamage(MapAgent mapAgent, int damage) {
         Debug.Log($"Player damaged: {damage}");
         var died = _data.ApplyDamage(damage);
 
@@ -38,6 +38,8 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
         }
 
         UpdateHealth();
+
+        return died;
     }
     
     private void UpdateHealth() => _stats.PlayerHealth.Value = _data.HealthAmount;
@@ -49,20 +51,34 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
         
         var direction = GetInput();
         
-        _player.Move(direction * (Time.deltaTime * _data.MovementSpeed));
+        direction = DoMovement(direction);
 
-        direction = _target != null? 
-            (_target.transform.position - _player.transform.position).normalized :
-            direction;
-        
-        _player.Rotate(direction);
-        
         SelectTarget(direction, _data.SightRadius, _data.AimTime);
 
-        if(_target != null && _target.IsActive && _player.ShootTarget(_target.transform.position, _data.AimTime))
-            _target.ApplyDamage(_data.Damage);
+        DoDamage();
     }
     
+    private void DoDamage() {
+        if (_target != null && _target.IsActive && _player.ShootTarget(_target.transform.position, _data.AimTime)) {
+            if (_target.ApplyDamage(_data.Damage)) {
+                _data.Experience++;
+
+                _stats.Level.Value = _data.GetLevel();
+            }
+        }
+    }
+
+    private Vector3 DoMovement(Vector3 direction) {
+        _player.Move(direction * (Time.deltaTime * _data.MovementSpeed));
+
+        direction = _target != null ?
+            (_target.transform.position - _player.transform.position).normalized :
+            direction;
+
+        _player.Rotate(direction);
+        return direction;
+    }
+
     public Vector3 GetInput() {
         var velocity = new Vector3(
             Input.GetAxis("Horizontal"),
@@ -115,4 +131,6 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
 
         return result;
     }
+    
+    public void Use(IAbility ability) => ability.Execute(_data);
 }

@@ -3,11 +3,13 @@ using System;
 public class ObservableValue<T> : IObservableValue<T> {
     private event Action<T> _changed; 
     private T _value;
-    
+    private readonly bool _notify;
+
     public event Action<T> Changed {
         add {
             _changed += value;
-            value?.Invoke(_value);
+            if(_notify)
+                value?.Invoke(_value);
         }
         remove {
             _changed -= value;
@@ -23,7 +25,8 @@ public class ObservableValue<T> : IObservableValue<T> {
         }
     }
 
-    public ObservableValue(T defaults = default) {
+    public ObservableValue(T defaults = default, bool notify = true) {
         _value = defaults;
+        _notify = notify;
     }
 }

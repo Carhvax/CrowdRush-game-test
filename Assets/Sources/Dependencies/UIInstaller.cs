@@ -7,6 +7,7 @@ public class UIInstaller : MonoInstaller {
 
     [SerializeField] private AppEntry _entryPoint;
     [SerializeField] private GameObject _handlers;
+    [SerializeField] private DataAbility[] _abilities;
     
     private Type[] _domainTypes;
     
@@ -45,6 +46,7 @@ public class UIInstaller : MonoInstaller {
     private void BindSources() {
         OnType<IAppModel>().Each(BindAsSingle);
         
+        BindInstanceAsSingle(_abilities.Cast<IAbility>().ToArray());
         BindInstanceAsSingle(_handlers.GetComponents<IAgentEventsHandler>().ToArray());
         BindInstanceAsSingle(FindObjectsOfType<ScreenState>(true));
         

@@ -68,16 +68,21 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
         float GetDistance(MapAgent target) => target.GetDirectionToContact(agent.transform.position).magnitude; 
     }
 
-    public void ApplyDamage(MapAgent mapAgent, int damage) {
+    public bool ApplyDamage(MapAgent mapAgent, int damage) {
         if (_instances.TryGetValue(mapAgent, out var data)) {
             var died = data.ApplyDamage(damage);
 
             if (died) {
                 _instances.Remove(mapAgent);
+                
                 mapAgent.KillAgent();
             }
             
             mapAgent.UpdateHealth(data.HealthAmount);
+
+            return died;
         }
+
+        return false;
     }
 }

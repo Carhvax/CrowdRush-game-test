@@ -31,9 +31,7 @@ public abstract class MapAgent : MonoBehaviour {
         KillAnimation(() => Die?.Invoke(this));
     }
     
-    public void ApplyDamage(int damage) {
-        _handler.ApplyDamage(this, damage);
-    }
+    public bool ApplyDamage(int damage) => _handler.ApplyDamage(this, damage);
 
     public void PlayAttack() => AttackAnimation();
 
