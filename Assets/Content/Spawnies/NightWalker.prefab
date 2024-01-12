@@ -4664,6 +4664,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd7005327196458c9739231f0247dbb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _collider: {fileID: 8243346668191109764}
   _healthBar: {fileID: 2534306645307120301}
   _animator: {fileID: 699784554629997913}
   _agent: {fileID: 2458229866647394842}

@@ -9,13 +9,15 @@ public class GameFlow : IStatsProvider, ITickable {
     public IObservableValue<float> ConsoleHealth { get; } = new ObservableValue<float>(1);
     public IObservableValue<int> MobsCount { get; }  = new ObservableValue<int>(50);
     public IObservableValue<int> Level { get; }  = new ObservableValue<int>(notify: false);
-    
+
+    private readonly EffectsFactory _factory;
     private readonly IAgentEventsHandler[] _handlers;
     private bool _isActive;
 
     public event Action Complete;
     
-    public GameFlow(IAgentEventsHandler[] handlers) {
+    public GameFlow(EffectsFactory factory, IAgentEventsHandler[] handlers) {
+        _factory = factory;
         _handlers = handlers;
     }
 
@@ -41,6 +43,7 @@ public class GameFlow : IStatsProvider, ITickable {
     }
 
     public void Dispose() {
+        _factory.Dispose();
         _isActive = false;
         _handlers.Each(h => h.DisposeHandler());
     }

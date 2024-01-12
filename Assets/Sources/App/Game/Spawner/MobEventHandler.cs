@@ -90,8 +90,6 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
             var died = data.ApplyDamage(damage);
 
             if (died) {
-                
-                
                 mapAgent.KillAgent();
             }
             

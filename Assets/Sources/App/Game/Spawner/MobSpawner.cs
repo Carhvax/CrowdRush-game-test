@@ -7,6 +7,7 @@ public class MobSpawner : SpawnPool<NightWalker> {
     [SerializeField] private float _spawnRadius = 5f;
     [SerializeField] private int _agentsAtOnce = 50;
     [SerializeField] private int _agentsTotal = 50;
+    [SerializeField] private EffectsFactory _effects;
     
     [Space]
     [SerializeField] private Transform[] _points;
@@ -17,7 +18,6 @@ public class MobSpawner : SpawnPool<NightWalker> {
     private int AgentsLimit => Mathf.Min(_agentsAtOnce, _agentsTotal - _killed);
     public int Remain => _agentsTotal - _killed;
 
-    public event Action AgentsCountChanged;
     public event Action<MapAgent> AgentSpawned;
     public event Action<MapAgent> AgentKilled;
 
@@ -50,9 +50,10 @@ public class MobSpawner : SpawnPool<NightWalker> {
         
         _killed++;
         
+        _effects.Create<MobDiedEffect>(agent.transform.position);
+        
         Return(agent as NightWalker);
         
-        AgentsCountChanged?.Invoke();
         AgentKilled?.Invoke(agent);
     }
 }

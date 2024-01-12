@@ -42,7 +42,9 @@ public class AppEntry : MonoBehaviour {
             })
             .AddMap<CompleteScreenState>((map) => {
                 commandFactory.AddRouteMap<ReturnMenuButton, UnLoadingScreenState>(map);
-                commandFactory.AddRouteMap<NextGameButton, LoadingScreenState>(map);
+                commandFactory.AddRouteMap<NextGameButton, RestartScreenState>(map);
+                
+                presenterFactory.AddPresenter<PausePresenter>(map);
             })
             .Complete();
     }

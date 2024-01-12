@@ -3,11 +3,11 @@ using UnityEngine;
 
 public abstract class MapAgent : MonoBehaviour {
 
+    [SerializeField] private CapsuleCollider _collider;
     [SerializeField] private HealthBar _healthBar;
     [SerializeField] private AgentAnimator _animator;
-    
+
     private IAgentEventsHandler _handler;
-    private CapsuleCollider _collider;
     private Vector3 _defaultStartPosition;
 
     public bool IsActive { get; private set; } = true;
@@ -15,24 +15,26 @@ public abstract class MapAgent : MonoBehaviour {
     public event Action<MapAgent> Die;
 
     private void OnValidate() {
-        _collider = GetComponent<CapsuleCollider>();
+        if(_collider == null)
+            _collider = GetComponent<CapsuleCollider>();
     }
 
+    public void ResetInstance() {
+        _collider.enabled = true;
+    }
+    
     public void SetAgentHandler(IAgentEventsHandler handler) {
         _handler = handler;
-        IsActive = true;
         
-        OnChangeAgentHandler();
+        IsActive = true;
     }
+    
+    public void UpdateHealth(float amount) => _healthBar?.SetAmount(amount);
 
-    protected virtual void OnChangeAgentHandler() {}
-    
-    public void UpdateHealth(float amount) {
-        _healthBar?.SetAmount(amount);
-    }
-    
     public void KillAgent() {
         IsActive = false;
+        _collider.enabled = false;
+        
         KillAnimation(() => Die?.Invoke(this));
     }
     

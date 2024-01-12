@@ -24,10 +24,6 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
         instance.gameObject.SetActive(false);
         _passive.Enqueue(instance);
     }
-
-    private void RemoveInstance(T instance) {
-        Destroy(instance);
-    }
     
     protected T GetFromPool(Vector3 position) {
         if(_passive.Count == 0) AddInstance();
@@ -38,6 +34,7 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
         
         instance.transform.position = position;
         instance.gameObject.SetActive(true);
+        instance.ResetInstance();
         
         return instance;
     }
@@ -49,8 +46,6 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
         _passive.Enqueue(instance);
     }
 
-    public void ReturnPool() {
-        _active.Each(Return);
-    }
-    
+    public void ReturnPool() => _active.Each(Return);
+
 }
