@@ -17,8 +17,9 @@ public class MobSpawner : SpawnPool<NightWalker> {
     private int AgentsLimit => Mathf.Min(_agentsAtOnce, _agentsTotal - _killed);
     public int Remain => _agentsTotal - _killed;
 
-    public event Action AgentDied;
+    public event Action AgentsCountChanged;
     public event Action<MapAgent> AgentSpawned;
+    public event Action<MapAgent> AgentKilled;
 
     public void Init() {
         Initialize();
@@ -51,6 +52,7 @@ public class MobSpawner : SpawnPool<NightWalker> {
         
         Return(agent as NightWalker);
         
-        AgentDied?.Invoke();
+        AgentsCountChanged?.Invoke();
+        AgentKilled?.Invoke(agent);
     }
 }

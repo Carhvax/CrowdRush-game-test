@@ -19,16 +19,21 @@ public class AppEntry : MonoBehaviour {
             .AddMap<LoadingScreenState>((map) => {
                 presenterFactory.AddPresenter<LoadingPresenter>(map);
             })
+            .AddMap<RestartScreenState>((map) => {
+                presenterFactory.AddPresenter<RestartPresenter>(map);
+            })
             .AddMap<GameScreenState>((map) => {
                 commandFactory.AddRouteMap<ShowPauseButton, PauseScreenState>(map);
+                
                 presenterFactory.AddPresenter<StatsPresenter>(map);
+                presenterFactory.AddPresenter<FlowPresenter>(map);
             })
             .AddMap<UnLoadingScreenState>((map) => {
                 presenterFactory.AddPresenter<UnloadingPresenter>(map);
             })
             .AddMap<PauseScreenState>((map) => {
                 commandFactory.AddRouteMap<ReturnMenuButton, UnLoadingScreenState>(map);
-                commandFactory.AddRouteMap<RestartMenuButton, LoadingScreenState>(map);
+                commandFactory.AddRouteMap<RestartMenuButton, RestartScreenState>(map);
                 
                 presenterFactory.AddPresenter<PausePresenter>(map);
             })

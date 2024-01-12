@@ -28,6 +28,8 @@ public class ConsoleEventHandler : MonoBehaviour, IAgentEventsHandler {
         
         if (_health == 0) {
             mapAgent.KillAgent();
+            // TODO: Simple end game
+            _stats.CompleteGame(false);
         }
 
         UpdateHealth();

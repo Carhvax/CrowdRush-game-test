@@ -8,6 +8,7 @@ public abstract class MapAgent : MonoBehaviour {
     
     private IAgentEventsHandler _handler;
     private CapsuleCollider _collider;
+    private Vector3 _defaultStartPosition;
 
     public bool IsActive { get; private set; } = true;
     
@@ -20,8 +21,12 @@ public abstract class MapAgent : MonoBehaviour {
     public void SetAgentHandler(IAgentEventsHandler handler) {
         _handler = handler;
         IsActive = true;
+        
+        OnChangeAgentHandler();
     }
 
+    protected virtual void OnChangeAgentHandler() {}
+    
     public void UpdateHealth(float amount) {
         _healthBar?.SetAmount(amount);
     }

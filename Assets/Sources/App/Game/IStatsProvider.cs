@@ -3,4 +3,6 @@
     IObservableValue<float> ConsoleHealth { get; }
     IObservableValue<int> MobsCount { get; }
     IObservableValue<int> Level { get; }
+
+    void CompleteGame(bool state);
 }

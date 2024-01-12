@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using UnityEngine;
 using Zenject;
 
 public class GameFlow : IStatsProvider, ITickable {
@@ -11,6 +13,8 @@ public class GameFlow : IStatsProvider, ITickable {
     private readonly IAgentEventsHandler[] _handlers;
     private bool _isActive;
 
+    public event Action Complete;
+    
     public GameFlow(IAgentEventsHandler[] handlers) {
         _handlers = handlers;
     }
@@ -32,12 +36,19 @@ public class GameFlow : IStatsProvider, ITickable {
         _handlers.Each(h => h.InitHandler(this));
     }
 
+    public void CompleteGame(bool state) {
+        Complete?.Invoke();
+    }
+
     public void Dispose() {
         _isActive = false;
         _handlers.Each(h => h.DisposeHandler());
     }
 
-    public void Pause(bool state) => _isActive = !state;
+    public void Pause(bool state) {
+        Time.timeScale = state? 0 : 1;
+        _isActive = !state;
+    }
 
     public void ApplyAbility(IAbility ability) {
         var handler = _handlers.OfType<PlayerEventHandler>().FirstOrDefault();

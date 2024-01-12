@@ -11,37 +11,58 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
     [SerializeField] private MapAgent[] _targets;
     
     private readonly Dictionary<MapAgent, MobData> _instances = new();
+    
     private BehaviourTree _tree;
     private IStatsProvider _stats;
-
+    private MapAgent _console;
 
     public void InitHandler(IStatsProvider stats) {
+        _console = _targets.OfType<CommandConsole>().FirstOrDefault();
         _stats = stats;
         _tree = new BehaviourTree(this);
-        _spawners.Each(s => s.Init());
+        
+        _spawners.Each(s => {
+            s.AgentSpawned += OnAgentWasSpawn;
+            s.AgentKilled += OnAgentWasKilled;
+            
+            s.Init();
+        });
+        
+        OnAgentCountChanged();
+    }
+    
+    private void OnAgentWasKilled(MapAgent agent) {
+        _instances.Remove(agent);
         
         OnAgentCountChanged();
     }
 
-    public void DisposeHandler() => _spawners.Each(s => s.DestroyPool());
-    
-    private void OnEnable() => _spawners.Each(s => {
-        s.AgentSpawned += OnAgentWasSpawn;
-        s.AgentDied += OnAgentCountChanged;
+    public void DisposeHandler() => _spawners.Each(s => {
+        s.ReturnPool();
+        
+        _instances.Clear();
+        
+        s.AgentSpawned -= OnAgentWasSpawn;
+        s.AgentKilled -= OnAgentWasKilled;
     });
     
     private void OnAgentCountChanged() {
         var mobs = _spawners.Sum(s => s.Remain);
         
         _stats.MobsCount.Value = mobs;
+        
+        if(mobs == 0) {
+            // TODO: Simple end game
+            _stats.CompleteGame(true);
+        }
     }
 
     private void OnAgentWasSpawn(MapAgent agent) {
         if (agent is NightWalker walker) {
             walker.SetAgentHandler(this);
             walker.UpdateHealth(1);
-            
-            _instances.Add(walker, new MobData(health: 10, sight: 5,  damage: 5, speed:1, target: _targets.OfType<CommandConsole>().FirstOrDefault()));
+            // TODO: Replace with mob factory
+            _instances.Add(walker, new MobData(health: 10, sight: 5,  damage: 5, speed:1, target: _console));
         }
     }
 
@@ -50,10 +71,6 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
         _instances.Each(i => _tree.Execute(i.Key, i.Value));
     }
 
-    private void OnDisable() => _spawners.Each(s => {
-        s.AgentSpawned -= OnAgentWasSpawn;
-        s.AgentDied -= OnAgentCountChanged;
-    });
 
     public MapAgent NearestTarget(MapAgent agent) {
         var data = _instances[agent];
@@ -63,7 +80,7 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
             .OrderBy(GetDistance)
             .FirstOrDefault();
         
-        return closestTarget != null ? closestTarget : _targets.OfType<CommandConsole>().FirstOrDefault();
+        return closestTarget != null ? closestTarget : _console;
         
         float GetDistance(MapAgent target) => target.GetDirectionToContact(agent.transform.position).magnitude; 
     }
@@ -73,7 +90,7 @@ public class MobEventHandler : MonoBehaviour, IAgentEventsHandler {
             var died = data.ApplyDamage(damage);
 
             if (died) {
-                _instances.Remove(mapAgent);
+                
                 
                 mapAgent.KillAgent();
             }

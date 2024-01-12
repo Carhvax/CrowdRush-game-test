@@ -49,9 +49,8 @@ public abstract class SpawnPool<T> : MonoBehaviour where T : MapAgent {
         _passive.Enqueue(instance);
     }
 
-    public void DestroyPool() {
+    public void ReturnPool() {
         _active.Each(Return);
-        _passive.Each(RemoveInstance);
     }
     
 }

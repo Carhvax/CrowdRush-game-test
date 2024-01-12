@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -18,7 +17,12 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
     private MobData _data;
     private MapAgent _target;
     private IStatsProvider _stats;
-    
+    private Vector3 _defaultStartPosition;
+
+    private void Awake() {
+        _defaultStartPosition = _player.transform.position;
+    }
+
     public void InitHandler(IStatsProvider stats) {
         _stats = stats;
         _data = new MobData(_health, _sightRadius,  _damage, _speed);
@@ -27,14 +31,18 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
         UpdateHealth();
     }
 
-    public void DisposeHandler() {}
+    public void DisposeHandler() {
+        _player.transform.position = _defaultStartPosition;
+    }
     
     public bool ApplyDamage(MapAgent mapAgent, int damage) {
-        Debug.Log($"Player damaged: {damage}");
         var died = _data.ApplyDamage(damage);
 
         if (died) {
             mapAgent.KillAgent();
+            
+            // TODO: Simple end game
+            _stats.CompleteGame(false);
         }
 
         UpdateHealth();
