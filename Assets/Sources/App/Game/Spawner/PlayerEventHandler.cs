@@ -124,7 +124,7 @@ public class PlayerEventHandler : MonoBehaviour, IAgentEventsHandler {
         
         colliders.Where(c => c != null).Each(target => {
             var direction = (target.transform.position - position) + Vector3.up * .5f;
-            var ray = new Ray(position, direction);
+            var ray = new Ray(position + Vector3.up * .5f, direction);
             
             if(Physics.Raycast(ray)) result.Add(target);
         });
